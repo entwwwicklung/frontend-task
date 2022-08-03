@@ -6,14 +6,29 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build"
   },
+  "browser": {
+    "fs": false,
+    "path": false,
+    "os": false
+  },
   "dependencies": {
     "core-js": "^3.8.3",
     "vue": "^3.2.13",
     "vuex": "^4.0.0"
   },
   "devDependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.1.2",
+    "@fortawesome/free-solid-svg-icons": "^6.1.2",
+    "@fortawesome/vue-fontawesome": "^3.0.1",
     "@vue/cli-plugin-babel": "~5.0.0",
     "@vue/cli-plugin-vuex": "~5.0.0",
-    "@vue/cli-service": "~5.0.0"
+    "@vue/cli-service": "~5.0.0",
+    "bootstrap-vue": "^2.22.0",
+    "dicom-parser": "^1.8.13",
+    "dicom.ts": "^1.0.6",
+    "fabric": "^5.2.1",
+    "sass": "^1.54.0",
+    "sass-loader": "^13.0.2",
+    "vue-router": "^4.1.3"
   }
 }
