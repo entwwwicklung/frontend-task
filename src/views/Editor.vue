@@ -32,6 +32,7 @@ export default {
   methods: {
 		...mapActions('editor', [
 			'addRectangle',
+			'deleteRectangle',
 			'setSelectedRectangle',
 		]),
 		selectRectangle(uuid) {
@@ -54,6 +55,14 @@ export default {
 		},
     initiateRectangleTool() {
 			const _this = this;
+			document.addEventListener('keyup', function(e) {
+				if (e.key === 'Delete' || e.key === 'Backspace') {
+					if (_this.selectedRectangle) {
+						_this.deleteRectangle(_this.selectedRectangle);
+					}
+				}
+			})
+
 			this.canvas.on('mouse:down', function(o) {
 				_this.isDown = true;
 				var pointer = _this.canvas.getPointer(o.e);
@@ -124,11 +133,15 @@ export default {
 			});
 
 			this.canvas.on('selection:created', function(o) {
-				_this.setSelectedRectangle(o.selected[0].id);
+				if (o.selected.length > 0) {
+					_this.setSelectedRectangle(o.selected[0].id);
+				}
 			})
 
 			this.canvas.on('selection:updated', function(o) {
-				_this.setSelectedRectangle(o.selected[0].id);
+				if (o.selected.length > 0) {
+					_this.setSelectedRectangle(o.selected[0].id);
+				}
 			})
     },
   },
@@ -178,34 +191,36 @@ export default {
 		const dicomCanvas = document.getElementById('dicom-canvas');
 		const _this = this;
     fr.onload = function(e) {
-        try {
-						const image = parseImage(new DataView(e.target.result));
-            const renderer = new Renderer(dicomCanvas);
-            renderer.render(image, 0);
+      try {
+				const image = parseImage(new DataView(e.target.result));
 
-						var width = image.tags['00280011'].value[0]
-						var height = image.tags['00280010'].value[0]
+				var width = image.tags['00280011'].value[0]
+				var height = image.tags['00280010'].value[0]
 
-						const editorCanvas = new fabric.Canvas('editor-canvas', {
-							width: width,
-							height: height
-						});
-						_this.canvas = editorCanvas;
+				dicomCanvas.width = width;
+				dicomCanvas.height = height;
 
-						var img = new Image();
-						img.src = dicomCanvas.toDataURL();
-						_this.canvas.setBackgroundImage(img, _this.canvas.renderAll.bind(_this.canvas), {
-							originX: 'left',
-							originY: 'top',
+				const renderer = new Renderer(dicomCanvas);
+        renderer.render(image, 0);
+
+				const editorCanvas = new fabric.Canvas('editor-canvas', {
+					width: dicomCanvas.clientWidth,
+					height: dicomCanvas.clientHeight
+				});
+				_this.canvas = editorCanvas;
+
+				var img = new Image();
+				img.src = dicomCanvas.toDataURL();
+				fabric.Image.fromURL(dicomCanvas.toDataURL(), function(img) {
+					_this.canvas.setBackgroundImage(img, _this.canvas.renderAll.bind(_this.canvas), {
 							scaleX: _this.canvas.width / img.width,
-							scaleY: _this.canvas.height / img.height,
-						});
-
-						dicomCanvas.remove();
-        } 
-        catch (err) {
-            console.error(err);
-        }
+							scaleY: _this.canvas.height / img.height
+					});
+				});
+      } 
+      catch (err) {
+        console.error(err);
+      }
   	}
     fr.readAsArrayBuffer(this.file);
   }
@@ -214,9 +229,8 @@ export default {
 
 <style scoped>
     canvas {
-        width: 100%;
-				top: 0;
-				left: 0;
-				position: absolute;
-    }
+			top: 0;
+			left: 0;
+			position: absolute;
+	}
 </style>
